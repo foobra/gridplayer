@@ -152,3 +152,4 @@ Thumbs.db
 
 # Pycharm
 .idea/
+.vscode/settings.json

@@ -1,0 +1,15 @@
+{
+    "version": "0.1",
+    "configurations": [
+      {
+        "name": "Python: Poetry",
+        "type": "debugpy",
+        "request": "launch",
+        "python": "/usr/local/Caskroom/miniconda/base/envs/gridplayer/bin/python",
+        "module": "gridplayer",
+        "args": [],
+        "cwd": "${workspaceFolder}",
+        "console": "integratedTerminal"
+      }
+    ]
+  }
