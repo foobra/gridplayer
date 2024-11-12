@@ -160,7 +160,7 @@ ACTIONS = MappingProxyType(
         },
         "+1%": {
             "title": "+1%",
-            "key": "Right",
+            # "key": "Right",
             "icon": "seek-plus-1",
             "func": ("active", "manual_seek", "seek_shift_percent", 1),
             "show_if": "is_active_seekable",
@@ -181,7 +181,7 @@ ACTIONS = MappingProxyType(
         },
         "-1%": {
             "title": "-1%",
-            "key": "Left",
+            # "key": "Left",
             "icon": "seek-minus-1",
             "func": ("active", "manual_seek", "seek_shift_percent", -1),
             "show_if": "is_active_seekable",
@@ -198,6 +198,13 @@ ACTIONS = MappingProxyType(
             "key": ";",
             "icon": "seek-minus-10",
             "func": ("active", "manual_seek", "seek_shift_percent", -10),
+            "show_if": "is_active_seekable",
+        },
+        "+1s": {
+            "title": "+1s",
+            "key": "Right",
+            "icon": "seek-plus-1",
+            "func": ("active", "manual_seek", "seek_shift_ms", 1000),
             "show_if": "is_active_seekable",
         },
         "+5s": {
@@ -221,6 +228,14 @@ ACTIONS = MappingProxyType(
             "func": ("active", "manual_seek", "seek_shift_ms", 30000),
             "show_if": "is_active_seekable",
         },
+        "-1s": {
+            "title": "-1s",
+            "key": "Left",
+            "icon": "seek-minus-1",
+            "func": ("active", "manual_seek", "seek_shift_ms", -1000),
+            "show_if": "is_active_seekable",
+        },
+
         "-5s": {
             "title": translate("Actions", "-5s"),
             "key": "Ctrl+Left",
@@ -339,6 +354,20 @@ ACTIONS = MappingProxyType(
             "key": "*",
             "icon": "zoom-reset",
             "func": ("active", "scale_reset"),
+            "show_if": "is_active_has_video",
+        },
+        "Crop Next": {
+            "title": "Crop Next",
+            "key": "Down",
+            "icon": "empty",
+            "func": ("active", "crop_index", 1),
+            "show_if": "is_active_has_video",
+        },
+        "Crop Prev": {
+            "title": "Crop Prev",
+            "key": "Up",
+            "icon": "empty",
+            "func": ("active", "crop_index", 0),
             "show_if": "is_active_has_video",
         },
         "Crop Left +": {

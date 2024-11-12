@@ -1,6 +1,7 @@
 import logging
 import random
 import secrets
+import json
 from functools import partial
 from pathlib import Path
 from typing import Optional, Tuple
@@ -46,6 +47,8 @@ from gridplayer.widgets.video_overlay import (
     OverlayFakeInvisible,
 )
 from gridplayer.widgets.video_status import VideoStatus
+
+from gridplayer.geo.parse_sei import VideoData, download_first_ts_segment,parse_video_data,process_ts_file
 
 IN_PROGRESS_THRESHOLD_MS = 500
 
@@ -132,6 +135,7 @@ def only_streamable(func):
 class VideoBlock(QWidget):  # noqa: WPS230
     load_video = pyqtSignal(MediaInput)
 
+    current_index = 1  # 静态变量，用于保存当前的裁剪索引
     about_to_close = pyqtSignal(str)
 
     sync_percent_single = pyqtSignal(float)
@@ -165,6 +169,8 @@ class VideoBlock(QWidget):  # noqa: WPS230
 
         # Static Params
         self.video_params: Optional[Video] = None
+
+        self.video_sei_data: Optional[VideoData] = None
 
         # Runtime Params
         self._is_error = False
@@ -719,6 +725,15 @@ class VideoBlock(QWidget):  # noqa: WPS230
 
         self.video_params = video_params
 
+        if "/000/" in video_params.uri :
+            ts_data = download_first_ts_segment(video_params.uri)
+
+            json_str = process_ts_file(ts_data)
+            if json_str:
+                data_dict = json.loads(json_str)
+                self.video_sei_data = parse_video_data(data_dict)
+
+
         # Shut down current video
         if not is_first_video or is_options_changed:
             self.reset()
@@ -997,6 +1012,52 @@ class VideoBlock(QWidget):  # noqa: WPS230
         )
 
         self.set_crop(crop, is_silent)
+
+
+    @only_with_video_tacks
+    @only_initialized
+    def crop_index(self, forward):
+        if self.video_sei_data:
+            index = VideoBlock.current_index
+            crop = self.calculate_crop(index, self.video_sei_data)
+            self.set_crop(crop, False)
+            VideoBlock.current_index = VideoBlock.current_index + (1 if forward else -1)
+            if (VideoBlock.current_index > len(self.video_sei_data.sei.fov_array)):
+                VideoBlock.current_index = 1
+            if (VideoBlock.current_index < 1):
+                VideoBlock.current_index = len(self.video_sei_data.sei.fov_array)
+
+
+    def calculate_crop(self, idx: int, video_data: VideoData) -> VideoCrop:
+        """
+        根据摄像机的索引 `idx` 和 `VideoData` 数据计算裁剪信息。
+
+        Args:
+            idx (int): 摄像机的索引，从 1 到 36。
+            video_data (VideoData): 包含视频 SEI 和视角信息的对象。
+
+        Returns:
+            VideoCrop: 表示裁剪区域的 VideoCrop 对象。
+        """
+        sei = video_data.sei
+        image_width = sei.video_resolution_x
+        image_height = sei.video_resolution_y
+
+        # 检查索引范围
+        if idx < 1 or idx > len(sei.fov_array):
+            raise ValueError("Camera index out of range.")
+
+        # 获取对应索引的视角信息
+        camera_view = sei.fov_array[idx - 1]  # idx 从 1 开始
+
+        # 计算裁剪参数
+        left = camera_view.x
+        top = camera_view.y
+        right = image_width - (left + camera_view.width)
+        bottom = image_height - (top + camera_view.height)
+
+        return VideoCrop(left, top, right, bottom)
+
 
     @only_with_video_tacks
     @only_initialized
