@@ -49,6 +49,7 @@ from gridplayer.widgets.video_overlay import (
 from gridplayer.widgets.video_status import VideoStatus
 
 from gridplayer.geo.parse_sei import VideoData, download_first_ts_segment,parse_video_data,process_ts_file
+from gridplayer.main.init_server import update_global_status
 
 IN_PROGRESS_THRESHOLD_MS = 500
 
@@ -136,6 +137,7 @@ class VideoBlock(QWidget):  # noqa: WPS230
     load_video = pyqtSignal(MediaInput)
 
     current_index = 1  # 静态变量，用于保存当前的裁剪索引
+    current_offset = 0
     about_to_close = pyqtSignal(str)
 
     sync_percent_single = pyqtSignal(float)
@@ -619,6 +621,7 @@ class VideoBlock(QWidget):  # noqa: WPS230
             self.video_params.current_position = time
 
         self.time_change.emit(time, self.video_driver.length)
+        update_global_status(self.video_params.uri, self.time, self.current_offset)
 
     @property
     def position(self):
@@ -725,10 +728,11 @@ class VideoBlock(QWidget):  # noqa: WPS230
 
         self.video_params = video_params
 
-        if "/000/" in video_params.uri :
-            ts_data = download_first_ts_segment(video_params.uri)
+        str_path = str(video_params.uri)
+        if "/000/" in str_path and "m3u8" in str_path:
+            data = download_first_ts_segment(video_params.uri)
 
-            json_str = process_ts_file(ts_data)
+            json_str = process_ts_file(data)
             if json_str:
                 data_dict = json.loads(json_str)
                 self.video_sei_data = parse_video_data(data_dict)
@@ -922,6 +926,8 @@ class VideoBlock(QWidget):  # noqa: WPS230
             new_time = self.time + seek_ms
 
         self.seek(new_time)
+        self.current_offset += seek_ms
+        update_global_status(self.video_params.uri, self.time, self.current_offset)
 
     @only_initialized
     @only_seekable

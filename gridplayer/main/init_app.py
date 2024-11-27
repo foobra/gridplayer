@@ -7,11 +7,13 @@ from PyQt5.QtWidgets import QApplication, QStyleFactory
 from gridplayer.main.init_icons import init_icon, switch_icon_theme
 from gridplayer.main.init_resources import init_resources
 from gridplayer.main.init_translator import init_translator
+from gridplayer.main.init_server import init_server
 from gridplayer.params.static import FONT_SIZE_MAIN
 
 
 def init_app():
     app = QApplication(sys.argv)
+    init_server()
 
     app.paletteChanged.connect(switch_icon_theme)
 
