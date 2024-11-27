@@ -364,6 +364,7 @@ def read_ts_file(file_path, read_size=2048):
         return None
 
 
+
 def download_first_ts_segment(url):
     # 下载 m3u8 文件内容
     with urllib.request.urlopen(url) as response:
@@ -383,19 +384,31 @@ def download_first_ts_segment(url):
     ts_url = urllib.parse.urljoin(url, ts_url)
     parsed_ts_url = urllib.parse.urlparse(ts_url)
 
-    # 使用 http.client 请求 TS 文件的前 2048 字节
+    # 初始化连接
     conn = http.client.HTTPConnection(parsed_ts_url.netloc)
-    conn.request("GET", parsed_ts_url.path + ("?" + parsed_ts_url.query if parsed_ts_url.query else ""), headers={"Range": "bytes=0-2047"})
 
-    # 获取响应并读取内容
-    response = conn.getresponse()
-    if response.status != 206:  # 206 是部分内容状态码
-        raise ValueError("未成功获取 TS 文件的部分内容")
+    try:
+        # 请求 TS 文件的前 2048 字节
+        conn.request("GET", parsed_ts_url.path + ("?" + parsed_ts_url.query if parsed_ts_url.query else ""), headers={"Range": "bytes=0-2047"})
+        response = conn.getresponse()
 
-    data = response.read()
-    conn.close()
+        if response.status == 206:  # 如果支持 Range 请求
+            data = response.read()
+        else:  # 如果不支持 Range 请求，则下载整个文件
+            conn.close()
+            with urllib.request.urlopen(ts_url) as full_response:
+                data = full_response.read()
+    except Exception as e:
+        conn.close()
+        raise e
+    finally:
+        conn.close()
+
+    # 获取 TS 文件名中的第一个段号
+    # first_seg = ts_url.split("-")[-1].split(".")[0]
 
     return data
+
 
 
 def parse_video_data(json_data: dict) -> VideoData:
