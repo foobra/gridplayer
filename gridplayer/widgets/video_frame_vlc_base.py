@@ -102,7 +102,8 @@ class VideoFrameVLC(QWidget, metaclass=QABC):
 
     @property
     def is_live(self) -> bool:
-        return self.media.is_live
+        return False
+        # return self.media.is_live
 
     @property
     def is_live_video(self) -> bool:

@@ -662,11 +662,11 @@ class VideoBlock(QWidget):  # noqa: WPS230
             return
 
         # 100ms headspace for slow callbacks
-        if self.time < self.loop_start - 100:
-            self.seek(self.loop_start)
+        # if self.time < self.loop_start - 100:
+        #     self.seek(self.loop_start)
 
-        elif self.time > self.loop_end:
-            self.loop_end_action()
+        # elif self.time > self.loop_end:
+        #     self.loop_end_action()
 
     def playback_status_changed(self, is_paused):
         self._is_state_change_in_progress = False

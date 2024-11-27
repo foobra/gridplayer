@@ -168,9 +168,16 @@ class OverlayBlock(QWidget):  # noqa: WPS230
     @pyqtSlot(int, int)
     def set_position(self, position, length):
         position_percent = position / length
+        if length == -1:
+            # show as 05:33:19
+            fake_length = 19999999
+        else:
+            fake_length = length
 
-        position_txt = get_time_txt(position // 1000, length // 1000)
-        length_txt = get_time_txt(length // 1000)
+
+
+        position_txt = get_time_txt(position // 1000, fake_length // 1000)
+        length_txt = get_time_txt(fake_length // 1000)
 
         if length == -1:
             self.floating_progress.hide()
@@ -180,7 +187,8 @@ class OverlayBlock(QWidget):  # noqa: WPS230
 
             self.progress_bar_placeholder.show()
 
-            self.label_progress.text = f"{position_txt}"
+            # self.label_progress.text = f"{position_txt}"
+            self.label_progress.text = f"{position_txt} / {length_txt}"
             self.label_progress.show()
         else:
             self.progress_bar.setEnabled(True)

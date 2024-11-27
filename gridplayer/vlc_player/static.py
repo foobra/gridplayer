@@ -94,7 +94,8 @@ class Media(object):
 
     @property
     def is_live(self) -> bool:
-        return self.length == -1
+        return False
+        # return self.length == -1
 
     @property
     def is_audio_only(self) -> bool:
