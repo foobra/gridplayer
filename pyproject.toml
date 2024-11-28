@@ -39,6 +39,7 @@ pyobjc-core = { version = "*", platform = "darwin" }
 pyobjc-framework-Cocoa = { version = "*", platform = "darwin" }
 streamlink = "6.2.1"
 yt-dlp = "2023.10.13"
+lxml = "4.9.3"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.8.0"

@@ -5,7 +5,7 @@
         "name": "Python: Poetry",
         "type": "debugpy",
         "request": "launch",
-        "python": "/usr/local/Caskroom/miniconda/base/envs/gridplayer/bin/python",
+        "python": "python",
         "module": "gridplayer",
         "args": [],
         "cwd": "${workspaceFolder}",
