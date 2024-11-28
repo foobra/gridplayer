@@ -162,7 +162,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
     def _relay_response(
         self, response: Response, chunks: Optional[Iterable[bytes]] = None
     ):
-        self.send_response(response.status_code, response.reason)
+        self.send_response_only(response.status_code, response.reason)
 
         for h_key, h_value in _filter_response_headers(dict(response.headers)).items():
             self.send_header(h_key, h_value)

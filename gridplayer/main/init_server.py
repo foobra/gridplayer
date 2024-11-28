@@ -41,13 +41,13 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         """处理 GET 请求"""
         if self.path == '/status':
-            self.send_response(200)
+            self.send_response_only(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             response = json.dumps(GLOBAL_STATUS, indent=2)
             self.wfile.write(response.encode())
         else:
-            self.send_response(404)
+            self.send_response_only(404)
             self.end_headers()
 
 
